@@ -34,7 +34,9 @@ H&M 상품·거래·이미지 데이터를 연결해 결측치를 처리하고, 
 - 이미지 평균·표준편차를 NumPy 배열 연산으로 계산하고 상품표에 연결했다.
 - IQR 1.5배 기준 이상치 후보 2,893행을 탐지하고 전후 박스플롯을 비교했다. 원본 거래를 삭제하지 않았다.
 - 히스토그램, 박스플롯, 막대그래프, 히트맵, 산점도, 월별 라인차트를 작성했다.
-- Recency, Frequency, Monetary 점수와 4개 이상 그룹을 계산했다.
+- 클래스의 `calculate_rfm()`에서 Recency, Frequency, Monetary 값·점수·고객 그룹을 함께 반환한다.
+- 클래스의 `상품이미지특성추가()`가 이미지 로드, NumPy 통계 계산, 상품 ID 연결을 수행한다.
+- `order_date`는 원본 `t_dat`, `amount`는 원본 `price`에 대응한다. 금액 단위를 바꾸거나 실제 통화 금액을 생성하지 않는다.
 
 ## 실행 방법
 
@@ -68,3 +70,11 @@ notebooks/analysis_report.ipynb    # 실행 결과와 해석
 scripts/prepare_hm_sample.py       # 원본 거래 분할에서 표본 생성
 scripts/prepare_hm_images.py       # 상품 이미지 준비
 ```
+
+## 검증
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+RFM 날짜·구매일 수·금액, 동점 점수, 기준일 검증, 상품 ID 기반 이미지 연결 및 결측치·IQR을 확인한다.
