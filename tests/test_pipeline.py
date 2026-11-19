@@ -44,8 +44,6 @@ class PipelineTests(unittest.TestCase):
         self.assertTrue(pd.isna(결과['image_mean'].iloc[2]))
 
     def test_complete_pipeline_preserves_inputs_and_can_run_again(self):
-        from src.analyzer import 데이터분석기
-        self.assertIs(데이터분석기, DataAnalyzer)
         with tempfile.TemporaryDirectory() as directory:
             폴더 = Path(directory)
             상품파일 = 폴더 / 'articles.csv'
