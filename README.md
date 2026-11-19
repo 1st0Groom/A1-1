@@ -64,8 +64,8 @@ jupyter notebook notebooks/analysis_report.ipynb
 ## 프로젝트 구조
 
 ```text
-src/pipeline.py                    # 과제용 DataAnalyzer 클래스
-src/analyzer.py                    # 분석 메서드 구현
+src/pipeline.py                    # DataAnalyzer 및 통합 분석 실행
+src/analyzer.py                    # 기존 학습 코드의 import 호환
 notebooks/analysis_report.ipynb    # 실행 결과와 해석
 scripts/prepare_hm_sample.py       # 원본 거래 분할에서 표본 생성
 scripts/prepare_hm_images.py       # 상품 이미지 준비
@@ -78,3 +78,32 @@ python -m unittest discover -s tests -v
 ```
 
 RFM 날짜·구매일 수·금액, 동점 점수, 기준일 검증, 상품 ID 기반 이미지 연결 및 결측치·IQR을 확인한다.
+
+## 평가 항목과 파이프라인 연결
+
+`src/pipeline.py`의 `DataAnalyzer`가 실제 분석 로직을 구현한다. `analyzer.py`는 기존 학습 코드의 import를 유지하기 위한 파일이다.
+
+```python
+from src.pipeline import DataAnalyzer
+
+분석기 = DataAnalyzer("data/raw/hm/articles.csv")
+분석결과 = 분석기.run(
+    거래파일경로="data/raw/hm/transactions_customer_sample.csv",
+    이미지폴더="data/raw/hm/images",
+    결측치대치방법="median",
+    이상치임계값=1.5,
+)
+```
+
+| 평가 항목 | 실행 메서드·결과 |
+|---|---|
+| 데이터 로드 | `load_data()` |
+| 그룹별 결측치 대치 | `handle_missing_values()` 및 `결측치현황` |
+| 텍스트·이미지 피처 | `텍스트길이추가()`, `상품이미지특성추가()` |
+| IQR 이상치 | `detect_outliers()` 및 `이상치결과` |
+| 요약통계·상관관계 | `요약통계`, `상관행렬` |
+| RFM 계산·점수화·분류 | `calculate_rfm()` 및 `고객지표`, `세그먼트요약` |
+| 차트 6종·단계별 해석 | `notebooks/analysis_report.ipynb` |
+| 비즈니스 인사이트 3개 | 이 README의 분석 결과와 비즈니스 제안 |
+
+`run()`은 원본 상품표를 별도로 보존한다. IQR 후보는 비교 그래프에만 사용하며, RFM에서 고액 구매를 임의로 제외하지 않는다. 같은 입력으로 다시 실행하면 원본부터 다시 분석한다.
